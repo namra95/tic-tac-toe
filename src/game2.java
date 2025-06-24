@@ -5,33 +5,52 @@ import java.util.*;
 //determine winner/loser/draw
 
 public class game2 {
-    private static final char EMPTY = '\u0000';
+    private static final char EMPTY = '\u0000'; //check for null char cell
 
     public static void main(String[] args) {
         char[][] matrix = new char[3][3];
         printBoard(matrix);
 
-        //!!!loop the entire game as well (game ends if checkWin is true or draw is true(all slots are filled))
-
-        // user goes first and check move validity
         char userSymbol = getUserSymbol();
-        int userMove = getUserInput();
-        while (isValidMove(matrix, userMove)) {
-            placeMove(matrix, userMove, userSymbol);
-        }
-
-        // computer goes next
         char compSymbol = getComputerSymbol(userSymbol);
-        int compMove = getCompMove();
-        while (isValidMove(matrix, compMove)) {
+
+        //!!!loop the entire game as well (game ends if checkWin is true or draw is true(all slots are filled))
+        while (!isBoardFull(matrix)) {
+            // user goes first and check move validity
+            int userMove = getUserInput();
+            while (!isValidMove(matrix, userMove)) {
+                System.out.println("Invalid move. Try again.");
+                userMove = getUserInput(); // Prompt user again
+            }
+            placeMove(matrix, userMove, userSymbol);
+            printBoard(matrix);
+
+            if (isBoardFull(matrix)) {
+                break;
+            }
+            if (checkWin(matrix, userSymbol) || checkWin(matrix, compSymbol)) {
+                break;
+            }
+
+            // computer goes next
+            int compMove = getCompMove();
+            while (!isValidMove(matrix, compMove)) {
+                compMove = getCompMove();
+            }
             placeMove(matrix, compMove, compSymbol);
+            System.out.println("computer picked: " + compMove);
+            printBoard(matrix);
         }
 
-        // check for user and comp win else check for draw
-
-        // declare results
-
-        printBoard(matrix);
+        // check for win/draw
+        System.out.println("Result:");
+        if (checkWin(matrix, userSymbol)) {
+           System.out.println("User wins!");
+        } else if (!checkWin(matrix, userSymbol) && !checkWin(matrix, compSymbol) && isBoardFull(matrix)) {
+            System.out.println("It's a draw!");
+        } else {
+            System.out.println("Computer Wins!");
+        }
     }
 
     public static void printBoard(char[][] board) {
@@ -51,14 +70,24 @@ public class game2 {
         }
     }
 
+    public static boolean isBoardFull(char[][] board) {
+        for (int i = 0; i < 3; i++) {
+            for (int j = 0; j < 3; j++) {
+                if (board[i][j] == EMPTY) {
+                    return false;
+                }
+            }
+        }
+        return true;
+    }
     public static int getUserInput() {
         Scanner keyboard = new Scanner(System.in);
         int userInput;
         while (true) {
-            System.out.println("Enter a number b/w 1-9, where you'd like to place your symbol: \n");
+            System.out.println("Enter a number b/w 0-8, where you'd like to place your symbol: ");
             try {
                 userInput = keyboard.nextInt();
-                if (userInput >= 1 && userInput <= 9) {
+                if (userInput >= 0 && userInput <= 8) {
                     return userInput;
                 } else {
                     System.out.println("Enter a number b/w 1-9 only");
@@ -101,67 +130,29 @@ public class game2 {
     }
 
     public static boolean isValidMove(char[][] board, int move) {
-        switch (move) {
-            case 1:
-                return board[0][0] == EMPTY;
-            case 2:
-                return board[0][1] == EMPTY;
-            case 3:
-                return board[0][2] == EMPTY;
-            case 4:
-                return board[1][0] == EMPTY;
-            case 5:
-                return board[1][1] == EMPTY;
-            case 6:
-                return board[1][2] == EMPTY;
-            case 7:
-                return board[2][0] == EMPTY;
-            case 8:
-                return board[2][1] == EMPTY;
-            case 9:
-                return board[2][2] == EMPTY;
-            default:
-                return false;
-        }
+        return switch (move) {
+            case 0 -> board[0][0] == EMPTY;
+            case 1 -> board[0][1] == EMPTY;
+            case 2 -> board[0][2] == EMPTY;
+            case 3 -> board[1][0] == EMPTY;
+            case 4 -> board[1][1] == EMPTY;
+            case 5 -> board[1][2] == EMPTY;
+            case 6 -> board[2][0] == EMPTY;
+            case 7 -> board[2][1] == EMPTY;
+            case 8 -> board[2][2] == EMPTY;
+            default -> false;
+        };
     }
 
     public static int getCompMove() {
         Random rand  = new Random();
-        return rand.nextInt(9) + 1; //to get 0 - 9 range
+        return rand.nextInt(9) + 1; //to get 0-8 range
     }
 
     public static void placeMove(char[][] board, int move, char symbol) {
-        switch (move) {
-            case 1:
-                board[0][0] = symbol;
-                break;
-            case 2:
-                board[0][1] = symbol;
-                break;
-            case 3:
-                board[0][2] = symbol;
-                break;
-            case 4:
-                board[1][0] = symbol;
-                break;
-            case 5:
-                board[1][1] = symbol;
-                break;
-            case 6:
-                board[1][2] = symbol;
-                break;
-            case 7:
-                board[2][0] = symbol;
-                break;
-            case 8:
-                board[2][1] = symbol;
-                break;
-            case 9:
-                board[2][2] = symbol;
-                break;
-            default:
-                System.out.println("N/A");
-        }
+        int row = move / 3;
+        int col = move % 3;
+        board[row][col] = symbol;
     }
 
     public static boolean checkWin(char[][] board, char symbol) {
