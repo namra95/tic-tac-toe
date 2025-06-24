@@ -5,11 +5,33 @@ import java.util.*;
 //determine winner/loser/draw
 
 public class game2 {
+    private static final char EMPTY = '\u0000';
+
     public static void main(String[] args) {
         char[][] matrix = new char[3][3];
         printBoard(matrix);
-        //placeMove(matrix, getUserInput(), getUserSymbol());
-        //printBoard(matrix);
+
+        //!!!loop the entire game as well (game ends if checkWin is true or draw is true(all slots are filled))
+
+        // user goes first and check move validity
+        char userSymbol = getUserSymbol();
+        int userMove = getUserInput();
+        while (isValidMove(matrix, userMove)) {
+            placeMove(matrix, userMove, userSymbol);
+        }
+
+        // computer goes next
+        char compSymbol = getComputerSymbol(userSymbol);
+        int compMove = getCompMove();
+        while (isValidMove(matrix, compMove)) {
+            placeMove(matrix, compMove, compSymbol);
+        }
+
+        // check for user and comp win else check for draw
+
+        // declare results
+
+        printBoard(matrix);
     }
 
     public static void printBoard(char[][] board) {
@@ -78,38 +100,38 @@ public class game2 {
         return compSymbol;
     }
 
-    public static boolean isValidMove(char[][] board, int input) {
-        switch (input) {
+    public static boolean isValidMove(char[][] board, int move) {
+        switch (move) {
             case 1:
-                return board[0][0] == ' ';
+                return board[0][0] == EMPTY;
             case 2:
-                return board[0][1] == ' ';
+                return board[0][1] == EMPTY;
             case 3:
-                return board[0][2] == ' ';
+                return board[0][2] == EMPTY;
             case 4:
-                return board[1][0] == ' ';
+                return board[1][0] == EMPTY;
             case 5:
-                return board[1][1] == ' ';
+                return board[1][1] == EMPTY;
             case 6:
-                return board[1][2] == ' ';
+                return board[1][2] == EMPTY;
             case 7:
-                return board[2][0] == ' ';
+                return board[2][0] == EMPTY;
             case 8:
-                return board[2][1] == ' ';
+                return board[2][1] == EMPTY;
             case 9:
-                return board[2][2] == ' ';
+                return board[2][2] == EMPTY;
             default:
                 return false;
         }
     }
 
-    public static int computerMove(){
+    public static int getCompMove() {
         Random rand  = new Random();
         return rand.nextInt(9) + 1; //to get 0 - 9 range
     }
 
-    public static void placeMove(char[][] board, int input, char symbol) {
-        switch (input) {
+    public static void placeMove(char[][] board, int move, char symbol) {
+        switch (move) {
             case 1:
                 board[0][0] = symbol;
                 break;
@@ -141,5 +163,35 @@ public class game2 {
                 System.out.println("N/A");
         }
     }
+
+    public static boolean checkWin(char[][] board, char symbol) {
+        //iterate after each symbol placement to check row, col or diagonal for the same symbol
+
+        //check row
+        for (int i = 0; i < 3; i++) {
+           if (board[i][0] == symbol && board[i][1] == symbol && board[i][2] == symbol) { //[row = i][col]
+               return true;
+           }
+        }
+        //check column
+        for (int j = 0; j < 3; j++) {
+            if (board[0][j] == symbol && board[1][j] == symbol && board[2][j] == symbol) { //[row][col = j]
+                return true;
+            }
+        }
+        //check diagonal
+        for (int i = 0; i < 3; i++) {
+            if (board[0][0] == symbol && board[1][1] == symbol && board[2][2] == symbol) {
+                return true;
+            } else if (board[0][2] == symbol && board[1][1] == symbol && board[2][0] == symbol) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    // if user && comp checkWin is false, then it is a draw
+
+
 }
 
